@@ -122,6 +122,15 @@ tasks:
       rm  -f ../{{.DEPLOY}}/secrets.zip
       zip -r ../{{.DEPLOY}}/secrets.zip *
 
+  agent:prepare:
+    - |-
+      rm -rf agent/nuvolaris && mkdir -p agent/nuvolaris
+      cp ../nuvolaris/config.py  ../nuvolaris/couchdb_util.py  ../nuvolaris/user_config.py agent/nuvolaris
+    - |-
+      cd agent
+      rm  -f ../{{.DEPLOY}}/agent.zip
+      zip -r ../{{.DEPLOY}}/agent.zip *
+
   # prepares all the system related actions
   prepare:
     - task: login:prepare   
@@ -133,3 +142,4 @@ tasks:
     - task: devel_download:prepare
     - task: ferretdb:prepare
     - task: secrets:prepare
+    - task: agent:prepare

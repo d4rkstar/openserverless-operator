@@ -181,7 +181,7 @@ def main(args):
         login = args['login']
         # retrieve user data for the login
         user_data = fetch_user_data(db, login)
-        added = removed = []
+        added = removed = changed = []
 
         if user_data:
             # convert them in a dict

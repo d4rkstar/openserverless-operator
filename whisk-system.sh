@@ -87,3 +87,9 @@ cp ${HOME}/actions/common/*.py ${HOME}/actions/devel/upload/common
 cd ${HOME}/actions/devel/upload
 rm  -f ${HOME}/deploy/whisk-system/devel_upload.zip
 zip -r ${HOME}/deploy/whisk-system/devel_upload.zip *
+
+mkdir -p ${HOME}/actions/agent/nuvolaris
+cp ${HOME}/nuvolaris/config.py ${HOME}/nuvolaris/couchdb_util.py ${HOME}/nuvolaris/user_config.py ${HOME}/actions/agent/nuvolaris
+cd ${HOME}/actions/agent
+rm  -f ${HOME}/deploy/whisk-system/agent.zip
+zip -r ${HOME}/deploy/whisk-system/agent.zip *

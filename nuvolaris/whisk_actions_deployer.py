@@ -64,6 +64,17 @@ def prepare_secrets_action():
 
     return secrets
 
+def prepare_agent_action():
+    agent = {
+        "name":"agent",
+        "function":"agent.zip",
+        "runtime":"python:3",
+        "web":"true",
+        "inputs":get_couchdb_inputs()
+    }
+
+    return agent
+
 def prepare_content_action():
     minio_host= cfg.get("minio.host") or "nuvolaris-minio"
     minio_port= cfg.get("minio.port") or "9000"
@@ -164,6 +175,7 @@ def prepare_system_actions():
     actions.append(prepare_dev_upload_action())
     actions.append(prepare_ferretdb_action())
     actions.append(prepare_dev_download_action())
+    actions.append(prepare_agent_action())
     return {"actions":actions}
 
 def process_wsk_result(result: CompletedProcess, expected_success_msg: str):
