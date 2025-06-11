@@ -50,12 +50,48 @@ def fetch_user_data(db, token: str):
         return None
 
 
-def build_response():
+def build_response(user_data):
+    body = {}
+    envs = list(user_data['env'])
+
+    if 'userenv' in user_data:
+        userenv = list(user_data['userenv'])
+    else :
+        userenv = []
+
+    # handle user envs
+    for env in userenv:
+        body[env['key']] = env['value']
+
+    # handle system envs
+    for env in envs:
+        if not env['key'] in body:
+            body[env['key']]=env['value']
+        else:
+            body[f"SYSTEM_{env['key']}"] = env['value']
+
     return {
         "statusCode": 200,
-        "body": {}
+        "body": body
     }
 
+def map_data(user_data):
+    """
+    Map the internal nuvolaris user_data records to the auth response
+    """
+    resp = {}
+    resp['login'] = user_data['login']
+    resp['email'] = user_data['email']
+
+    if 'env' in user_data:
+        resp['env'] = user_data['env']
+    if 'userenv' in user_data:
+        resp['userenv'] = user_data['userenv']
+
+    if 'quota' in user_data:
+        resp['quota'] = user_data['quota']    
+
+    return resp   
 
 def build_error(message: str, status_code: int = 400):
     return {
@@ -77,7 +113,7 @@ def main(args):
 
     # Example: Get a specific header, e.g., "Authorization"
     auth_header = normalized_headers.get('authorization', '')
-    if auth_header is '':
+    if auth_header == '':
         return build_error("missing authorization header", 401)
 
     db = cu.CouchDB()
@@ -85,6 +121,6 @@ def main(args):
     user_data = fetch_user_data(db, auth_header)
 
     if user_data:
-        return build_response()
+        return build_response(map_data(user_data))
     else:
         return build_error(f"Invalid token", 401)

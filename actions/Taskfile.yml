@@ -90,6 +90,27 @@ tasks:
       {{.DEPLOY}}/login.zip --kind python:3 --web true
     - > 
       {{.WSKSYS}} action get nuv/login --url
+  
+  agent:prepare:
+    - |- 
+      mkdir -p agent/nuvolaris
+      cp ../nuvolaris/config.py ../nuvolaris/couchdb_util.py ../nuvolaris/user_config.py agent/nuvolaris      
+    - |-
+      cd agent
+      rm  -f ../{{.DEPLOY}}/agent.zip
+      zip -r ../{{.DEPLOY}}/agent.zip *
+
+  agent:deploy:
+    - > 
+      {{.WSKSYS}} package update nuv
+      -p couchdb_user "{{.CDB_USER}}"
+      -p couchdb_password "{{.CDB_PASSWORD}}"
+      -p couchdb_host "{{.CDB_HOST}}"  
+    - > 
+      {{.WSKSYS}} action update nuv/agent 
+      {{.DEPLOY}}/agent.zip --kind python:3 --web true
+    - > 
+      {{.WSKSYS}} action get nuv/agent --url
 
   content:prepare:
     - |- 
