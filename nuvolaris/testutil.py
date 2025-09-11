@@ -17,7 +17,6 @@
 #
 import yaml
 import re
-import flatdict
 import json
 import time
 import os
@@ -312,3 +311,11 @@ def load_sample_runtimes(name="runtimes"):
 
 def enable_debug_logging():
     logging.basicConfig(level=logging.DEBUG)
+
+def run_proc(cmd):
+    try:
+        get_ipython().system(cmd)
+    except NameError:
+        import subprocess
+        subprocess.run(cmd.split(), check=True)
+        

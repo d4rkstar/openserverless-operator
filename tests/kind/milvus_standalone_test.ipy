@@ -37,6 +37,7 @@ from nuvolaris.user_metadata import UserMetadata
 # test
 assert(cfg.configure(tu.load_sample_config()))
 assert(cfg.detect_storage()["nuvolaris.storageclass"])
+assert(cfg.get("nuvolaris.slim") == None or cfg.get("nuvolaris.slim") == False)
 
 # for this test minioClient and Milvus should see this env variable
 os.environ['MINIO_API_HOST']='localhost'

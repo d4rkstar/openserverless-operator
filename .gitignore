@@ -56,3 +56,4 @@ actions/github/callback/common
 actions/github/webhook/common
 .direnv/
 .idea/**
+.vscode/**

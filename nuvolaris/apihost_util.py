@@ -110,9 +110,11 @@ def calculate_apihost(runtime_str,apiHost=None):
         elif "ip" in apiHost[0]:
             url = url._replace(netloc = ensure_host(apiHost[0]['ip']))
 
-    # in auto mode we should use the calculated ip address
+    # in auto mode we should use the calculated ip address and defaults to miniops.me
     if cfg.exists("nuvolaris.apihost") and not 'auto' == cfg.get('nuvolaris.apihost'):
         url =  url._replace(netloc = ensure_host(cfg.get("nuvolaris.apihost")))
+    else:
+        url =  url._replace(netloc = "miniops.me" )
     if cfg.exists("nuvolaris.apiport"):
         url = url._replace(netloc = f"{url.hostname}:{cfg.get('nuvolaris.apiport')}")
 
@@ -161,17 +163,6 @@ def extract_port(url):
     parsed_url = urllib.parse.urlparse(url)
     return parsed_url.port
 
-def extract_hostname(url):
-    """
-    Parse a url and extract the hostname part
-    >>> extract_hostname('http://localhost:8080')
-    'localhost'
-    >>> extract_hostname('https://nuvolaris.org')    
-    'nuvolaris.org'
-    """
-    parsed_url = urllib.parse.urlparse(url)
-    return parsed_url.hostname
-
 def split_hostname_port(url):
     """
     Parse a url and extract the port part
@@ -190,12 +181,6 @@ def get_user_static_hostname(runtime, username, apihost):
     inside the cm/config configMap prepending the user_namespace when needed.
     """
     
-    if runtime == 'kind':
-        return f"{username}.localhost"
-
-    if apihost not in ["auto"]:
-        return apihost
-
     apihost_url = util.get_apihost_from_config_map()
 
     if apihost_url:

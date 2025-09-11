@@ -31,7 +31,7 @@ from urllib3.exceptions import NewConnectionError, MaxRetryError, ProtocolError
 import nuvolaris.apihost_util as apihost_util
 import nuvolaris.config as cfg
 import nuvolaris.kube as kube
-
+import nuvolaris.template as template
 
 # Implements truncated exponential backoff from
 # https://cloud.google.com/storage/docs/retry-strategy#exponential-backoff
@@ -210,16 +210,6 @@ def status_matches(code: int, allowed: List[Union[int, str]]) -> bool:
                 return True
     return False
 
-def status_matches(code: int, allowed: List[Union[int, str]]) -> bool:
-    """Check if the status code matches any allowed pattern."""
-    for pattern in allowed:
-        if isinstance(pattern, int) and code == pattern:
-            return True
-        if isinstance(pattern, str) and len(pattern) == 3 and pattern.endswith("XX"):
-            if int(pattern[0]) == code // 100:
-                return True
-    return False
-
 def wait_for_http(url: str, timeout: int = 60, up_statuses: List[Union[int, str]] = [200]):
     """Wait until an HTTP endpoint becomes available with an accepted status code.
 
@@ -344,7 +334,8 @@ def get_standalone_config_data():
         "container_cpu_lim": cfg.get('configs.controller.resources.cpu-lim') or "1",
         "container_mem_req": cfg.get('configs.controller.resources.mem-req') or "1G",
         "container_mem_lim": cfg.get('configs.controller.resources.mem-lim') or "2G",
-        "container_manage_resources": cfg.exists('configs.controller.resources.cpu-req')
+        "container_manage_resources": cfg.exists('configs.controller.resources.cpu-req'),
+        "usePrivateRegistry":cfg.get('components.registry') or False,
     }
 
     get_controller_image_data(data)
@@ -449,7 +440,7 @@ def get_postgres_config_data():
         'postgres_nuvolaris_user': "nuvolaris",
         'postgres_nuvolaris_password': cfg.get('postgres.nuvolaris.password') or "s0meP@ass3",
         'size': cfg.get('postgres.volume-size') or 10,
-        'replicas': cfg.get('postgres.admin.replicas') or 2,
+        'replicas': cfg.get('postgres.replicas') or 2,
         'storageClass': cfg.get('nuvolaris.storageclass'),
         'failover': cfg.get('postgres.failover') or False,
         'backup': cfg.get('postgres.backup.enabled') or False,
@@ -593,6 +584,11 @@ def postgres_manager_affinity_tolerations_data():
 def postgres_backup_affinity_tolerations_data(data):
     common_affinity_tolerations_data(data)
     data["pod_anti_affinity_name"] = "nuvolaris-postgres-backup"
+
+# populate specific affinity data for registry
+def registry_affinity_tolerations_data(data):
+    common_affinity_tolerations_data(data)
+    data["pod_anti_affinity_name"] = "registry"    
 
 # wait for a pod name using a label selector and eventually an optional jsonpath
 @nuv_retry()
@@ -814,11 +810,36 @@ def get_milvus_config_data():
         'nuvolaris_password': cfg.get('milvus.nuvolaris.password') or "Nuv0therPa55",
         'milvus_max_role_num': cfg.get('milvus.proxy.max-role-num') or 10,
         'milvus_max_user_num': cfg.get('milvus.proxy.max-user-num') or 100,
-        'milvus_max_database_num': cfg.get('milvus.root-coord.max-database-num') or 64
+        'milvus_max_database_num': cfg.get('milvus.root-coord.max-database-num') or 64,
+        'slim': cfg.get('nuvolaris.slim') or False,
         }
 
     data["etcd_range"]=range(data["etcd_replicas"])
     milvus_standalone_affinity_tolerations_data(data)
+    return data
+
+
+# return registry configuration parameters with default values if not configured
+def get_registry_config_data():
+
+    data = {
+        "applypodsecurity":get_enable_pod_security(),
+        "name": "registry",
+        "container": "registry",
+        "dir":"/var/lib/registry",
+        "pvcName":"registry-pvc",
+        "size": cfg.get("registry.volume-size", "REGISTRY_VOLUME_SIZE", 20),
+        "storageClass": cfg.get("nuvolaris.storageclass"),
+        "repoHostname": cfg.get('registry.hostname') or "auto",
+        "ingressEnabled": cfg.get('registry.ingress.enabled') or False,
+        "registryUsername": cfg.get('registry.auth.username') or "openserverless",
+        "registryPassword": cfg.get('registry.auth.password') or "4pwdregistry",
+        "mode": cfg.get('registry.mode') or "internal"
+    }
+
+    # always add the internal SvcHostname
+    data['repoSvcHostname'] = "nuvolaris-registry-svc:5000"
+    registry_affinity_tolerations_data(data)
     return data
 
 

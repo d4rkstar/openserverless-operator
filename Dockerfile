@@ -68,6 +68,8 @@ ADD --chown=nuvolaris:nuvolaris deploy/kvrocks /home/nuvolaris/deploy/kvrocks
 ADD --chown=nuvolaris:nuvolaris deploy/etcd /home/nuvolaris/deploy/etcd
 ADD --chown=nuvolaris:nuvolaris deploy/milvus-operator /home/nuvolaris/deploy/milvus-operator
 ADD --chown=nuvolaris:nuvolaris deploy/milvus /home/nuvolaris/deploy/milvus
+ADD --chown=nuvolaris:nuvolaris deploy/milvus-slim /home/nuvolaris/deploy/milvus-slim
+ADD --chown=nuvolaris:nuvolaris deploy/registry /home/nuvolaris/deploy/registry
 ADD --chown=nuvolaris:nuvolaris quota.sh /home/nuvolaris/
 
 #------------------------------------------------------------------------------
@@ -136,7 +138,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
     curl -sL "$WSK_BASE/$WSK_VERSION/OpenWhisk_CLI-$WSK_VERSION-linux-$ARCH.tgz" | tar xzvf - -C /usr/bin/ && \
     # install minio
     MINIO_BASE=https://dl.min.io/client/mc/release/linux && \
-    MC_VER=RELEASE.2023-03-23T20-03-04Z && \
+    MC_VER=RELEASE.2025-05-21T01-59-54Z && \
     curl -sL "$MINIO_BASE-$ARCH/archive/mc.${MC_VER}" -o /usr/bin/mc && chmod +x /usr/bin/mc && \
     # install taskfile
     curl -sL https://taskfile.dev/install.sh | sh -s -- -d -b /usr/bin
