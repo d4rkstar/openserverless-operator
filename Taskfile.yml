@@ -234,7 +234,7 @@ tasks:
       - |
         for test in nuvolaris/{{.T}}*.py
         do  echo "*** [{{.KUBE}}] $test"
-            uv run ipython python3 -m doctest $test {{.CLI_ARGS}}
+            uv run ipython -m doctest $test {{.CLI_ARGS}}
         done
     silent: true
 

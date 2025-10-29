@@ -23,7 +23,7 @@ vars:
 
 tasks:
 
-  setup:
+  setup-env:
     silent: true
     desc: setup the environment
     cmds:
