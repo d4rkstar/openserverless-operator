@@ -55,8 +55,7 @@ jobs:
       - name: Kind
         run: |
           cd $HOME && \
-          ops setup docker create && \
-          ops setup docker kubeconfig
+          ops setup docker create
       - name: Install
         run: task setup
       - name: BuildAndLoad
@@ -74,5 +73,5 @@ jobs:
         run: task utest
         continue-on-error: false
       - name: Integration Test
-        run: task itest
+        run: ops setup docker kubeconfig && task itest
         continue-on-error: false
