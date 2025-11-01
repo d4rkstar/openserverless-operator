@@ -30,10 +30,10 @@ jobs:
     #runs-on: ubuntu-22.04
     runs-on: [ self-hosted, Linux, X64 ]
     steps:
-      - name: Remove unnecessary files
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"    
+      # - name: Remove unnecessary files
+      #   run: |
+      #     sudo rm -rf /usr/share/dotnet
+      #     sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Checkout
         uses: actions/checkout@v2
         with:
