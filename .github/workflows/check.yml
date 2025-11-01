@@ -16,7 +16,7 @@
 # under the License.
 #
 
-name: openserverless-operator-check
+name: Check OpenServerless Operator
 on: 
   push:
     branches: [main, uv-and-ops]
@@ -27,6 +27,7 @@ jobs:
   check:
     name: Check OpenServerless Operator
     runs-on: [ self-hosted, Linux, X64 ]
+    #runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
